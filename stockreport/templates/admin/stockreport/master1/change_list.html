@@ -1,0 +1,130 @@
+{% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/changelists.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<style>
+    .search-container {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .select2-container {
+        width: 300px !important;
+        display: inline-block;
+        margin-right: 10px;
+    }
+    .select2-container .select2-selection--single {
+        height: 38px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    .select2-container .select2-selection--single .select2-selection__rendered {
+        line-height: 36px;
+        padding-left: 12px;
+    }
+    .select2-container .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+    .select2-dropdown {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .select2-results__option {
+        padding: 8px 12px;
+    }
+    .select2-results__option--highlighted {
+        background-color: #79aec8;
+    }
+    .search-container input[type="submit"] {
+        background: #79aec8;
+        color: #fff;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 4px;
+        cursor: pointer;
+        vertical-align: top;
+    }
+    .search-container input[type="submit"]:hover {
+        background: #417690;
+    }
+</style>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Initialize Select2
+        var $select = $('#name-search').select2({
+            placeholder: 'Search by Name...',
+            allowClear: true,
+            minimumInputLength: 1,
+            ajax: {
+                url: '{% url "admin:master1_autocomplete" %}',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return {
+                        term: params.term
+                    };
+                },
+                processResults: function(data) {
+                    return {
+                        results: data.results
+                    };
+                },
+                cache: true
+            }
+        });
+
+        // Handle form submission
+        $('#changelist-search').on('submit', function(e) {
+            e.preventDefault();
+            var searchTerm = $select.val();
+            if (searchTerm) {
+                window.location.href = '?q=' + encodeURIComponent(searchTerm);
+            }
+        });
+
+        // If there's a search term in the URL, set it in the select
+        var urlParams = new URLSearchParams(window.location.search);
+        var searchTerm = urlParams.get('q');
+        if (searchTerm) {
+            // Create a new option and set it as selected
+            var newOption = new Option(searchTerm, searchTerm, true, true);
+            $select.append(newOption).trigger('change');
+        }
+
+        // Handle select change
+        $select.on('select2:select', function(e) {
+            var searchTerm = e.params.data.text;
+            window.location.href = '?q=' + encodeURIComponent(searchTerm);
+        });
+    });
+</script>
+{% endblock %}
+
+{% block search %}
+<div class="search-container">
+    <form id="changelist-search" method="get">
+        <div>
+            <label for="searchbar"><img src="{% static 'admin/img/search.svg' %}" alt="Search"></label>
+            {{ search_form.search }}
+            <input type="submit" value="{% translate 'Search' %}">
+        </div>
+        {% if cl.result_count != cl.full_result_count %}
+        <div class="results">
+            <p>{% blocktranslate with cl.result_count as result_count %}{{ result_count }} results{% endblocktranslate %}</p>
+        </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %} 

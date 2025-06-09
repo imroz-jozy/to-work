@@ -1,0 +1,37 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_urls static admin_modify %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<script>
+$(document).ready(function() {
+    var searchInput = $('input[name="q"]');
+    if (searchInput.length) {
+        searchInput.autocomplete({
+            source: function(request, response) {
+                $.getJSON("{% url 'admin:stockreport_master1_changelist' %}", {
+                    q: request.term
+                }, function(data) {
+                    var items = [];
+                    $(data).find('tr').each(function() {
+                        var name = $(this).find('td:nth-child(2)').text().trim();
+                        if (name) {
+                            items.push(name);
+                        }
+                    });
+                    response(items);
+                });
+            },
+            minLength: 1,
+            select: function(event, ui) {
+                searchInput.val(ui.item.value);
+                searchInput.closest('form').submit();
+            }
+        });
+    }
+});
+</script>
+{% endblock %} 

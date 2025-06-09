@@ -1,0 +1,77 @@
+{% extends "admin/widgets/foreign_key_raw_id.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+{{ block.super }}
+<script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/autocomplete.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'admin/css/autocomplete.css' %}">
+<style>
+    .select2-container--admin-autocomplete {
+        width: 100% !important;
+    }
+    .select2-container--admin-autocomplete .select2-selection--single {
+        height: 38px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    .select2-container--admin-autocomplete .select2-selection--single .select2-selection__rendered {
+        line-height: 36px;
+        padding-left: 12px;
+    }
+    .select2-container--admin-autocomplete .select2-selection--single .select2-selection__arrow {
+        height: 36px;
+    }
+    .select2-container--admin-autocomplete .select2-dropdown {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .select2-container--admin-autocomplete .select2-results__option {
+        padding: 8px 12px;
+    }
+    .select2-container--admin-autocomplete .select2-results__option--highlighted {
+        background-color: #79aec8;
+    }
+    .select2-container--admin-autocomplete .select2-search--dropdown .select2-search__field {
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block widget %}
+<div class="select2-container">
+    <select class="select2" name="{{ widget.name }}" id="{{ widget.attrs.id }}">
+        {% if widget.value %}
+            <option value="{{ widget.value }}" selected>{{ widget.label }}</option>
+        {% endif %}
+    </select>
+</div>
+<script>
+    $(document).ready(function() {
+        $('#{{ widget.attrs.id }}').select2({
+            placeholder: 'Search for an item...',
+            allowClear: true,
+            ajax: {
+                url: '{% url "admin:master1_autocomplete" %}',
+                dataType: 'json',
+                delay: 250,
+                data: function(params) {
+                    return {
+                        term: params.term
+                    };
+                },
+                processResults: function(data) {
+                    return {
+                        results: data.results
+                    };
+                },
+                cache: true
+            },
+            minimumInputLength: 1
+        });
+    });
+</script>
+{% endblock %} 

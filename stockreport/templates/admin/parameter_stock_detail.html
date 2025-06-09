@@ -1,0 +1,60 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    .stock-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    .stock-table th, .stock-table td {
+        padding: 8px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+    .stock-table th {
+        background-color: #f5f5f5;
+    }
+    .stock-table tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    .number-cell {
+        text-align: right;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>{{ title }}</h1>
+    
+    <table class="stock-table">
+        <thead>
+            <tr>
+                <th>Item Details</th>
+                <th class="number-cell">Total Qty.</th>
+                <th>P1 (COLOUR)</th>
+                <th>P2 (SIZE)</th>
+                <th>P3 (DESIGN)</th>
+                <th class="number-cell">Qty.</th>
+                <th>BCN No.</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stock in parameter_stock %}
+            <tr>
+                <td>{{ item.Code }} - {{ item.Name }}</td>
+                <td class="number-cell">{{ total_stock }}</td>
+                <td>{{ stock.C1 }}</td>
+                <td>{{ stock.C2 }}</td>
+                <td>{{ stock.C3 }}</td>
+                <td class="number-cell">{{ stock.qty }}</td>
+                <td>{{ stock.bcn }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
